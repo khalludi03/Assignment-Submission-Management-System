@@ -41,13 +41,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
-    options.AddPolicy("TeacherOnly", p => p.RequireRole("Teacher"));
-    options.AddPolicy("StudentOnly", p => p.RequireRole("Student"));
-    options.AddPolicy("TeacherOrAdmin", p => p.RequireRole("Teacher", "Admin"));
-});
+builder.Services.AddAuthorization(AuthPolicies.Configure);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
