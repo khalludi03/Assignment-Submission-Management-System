@@ -84,14 +84,14 @@ export default function TeacherAssignmentsTab() {
 
   return (
     <div>
-      <form onSubmit={handleAssign} className="mb-5 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <h3 className="mb-3 text-base font-semibold text-gray-900">Assign Teacher</h3>
+      <form onSubmit={handleAssign} className="card mb-5 p-5">
+        <h3 className="mb-3 text-base font-semibold text-zinc-50">Assign Teacher</h3>
         <div className="grid gap-3 sm:grid-cols-3">
           <select
             value={teacherId}
             onChange={(e) => setTeacherId(e.target.value)}
             required
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           >
             <option value="" disabled>
               Teacher...
@@ -106,7 +106,7 @@ export default function TeacherAssignmentsTab() {
             value={classId}
             onChange={(e) => setClassId(e.target.value)}
             required
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           >
             <option value="" disabled>
               Class...
@@ -121,7 +121,7 @@ export default function TeacherAssignmentsTab() {
             value={subjectId}
             onChange={(e) => setSubjectId(e.target.value)}
             required
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           >
             <option value="" disabled>
               Subject...
@@ -133,36 +133,32 @@ export default function TeacherAssignmentsTab() {
             ))}
           </select>
         </div>
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={saving}
-          className="mt-3 rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
+        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+        <button type="submit" disabled={saving} className="btn btn-primary mt-3">
           {saving ? "Assigning..." : "Assign teacher"}
         </button>
       </form>
 
       {!assignments ? (
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-zinc-400">Loading...</p>
       ) : (
-        <div className="max-w-lg overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="card max-w-lg overflow-hidden">
           {assignments.length === 0 ? (
-            <p className="p-5 text-sm text-gray-500">No teacher assignments yet.</p>
+            <p className="p-5 text-sm text-zinc-400">No teacher assignments yet.</p>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-zinc-800/60">
               {assignments.map((ta) => (
-                <li key={`${ta.teacherId}-${ta.classId}-${ta.subjectId}`} className="flex items-center justify-between px-5 py-3">
+                <li
+                  key={`${ta.teacherId}-${ta.classId}-${ta.subjectId}`}
+                  className="flex items-center justify-between px-5 py-3"
+                >
                   <div>
-                    <p className="text-sm text-gray-900">{ta.teacherName}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm text-zinc-100">{ta.teacherName}</p>
+                    <p className="text-xs text-zinc-500">
                       {ta.className} · {ta.subjectName}
                     </p>
                   </div>
-                  <button
-                    onClick={() => handleUnassign(ta)}
-                    className="rounded-md border border-red-200 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50"
-                  >
+                  <button onClick={() => handleUnassign(ta)} className="btn btn-danger">
                     Unassign
                   </button>
                 </li>

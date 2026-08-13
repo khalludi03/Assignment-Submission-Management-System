@@ -82,22 +82,22 @@ export default function StudentDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-black">
         <NavBar title="Student Dashboard" />
-        <main className="mx-auto max-w-6xl px-4 py-8 text-red-600">{error}</main>
+        <main className="mx-auto max-w-6xl px-4 py-8 text-red-400">{error}</main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       <NavBar title="Student Dashboard" />
       <main className="mx-auto max-w-6xl px-4 py-8">
-        <h2 className="mb-4 text-xl font-semibold text-gray-900">Your Assignments</h2>
+        <h2 className="mb-4 text-xl font-semibold text-zinc-50">Your Assignments</h2>
         {!items ? (
-          <p className="text-gray-500">Loading...</p>
+          <p className="text-zinc-400">Loading...</p>
         ) : items.length === 0 ? (
-          <p className="text-gray-500">No published assignments yet.</p>
+          <p className="text-zinc-400">No published assignments yet.</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {items.map(({ assignment, submission }) => {
@@ -107,21 +107,17 @@ export default function StudentDashboard() {
               const submissionExists = Boolean(submission);
 
               return (
-                <div key={assignment.id} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div key={assignment.id} className="card p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-base font-semibold text-gray-900">{assignment.title}</h3>
-                      <p className="mt-0.5 text-sm text-gray-500">
+                      <h3 className="text-base font-semibold text-zinc-50">{assignment.title}</h3>
+                      <p className="mt-0.5 text-sm text-zinc-400">
                         {assignment.subjectName} · {assignment.teacherName}
                       </p>
                     </div>
                     <span
-                      className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        graded
-                          ? "bg-green-100 text-green-700"
-                          : submission
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-600"
+                      className={`badge shrink-0 ${
+                        graded ? "badge-green" : submission ? "badge-blue" : "badge-gray"
                       }`}
                     >
                       {graded ? "Graded" : submission ? "Submitted" : "Pending"}
@@ -129,27 +125,29 @@ export default function StudentDashboard() {
                   </div>
 
                   {assignment.description && (
-                    <p className="mt-3 text-sm text-gray-700">{assignment.description}</p>
+                    <p className="mt-3 text-sm text-zinc-300">{assignment.description}</p>
                   )}
 
-                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
                     <span>Deadline: {formatDate(assignment.deadline)}</span>
                     <span>Max marks: {assignment.maxMarks}</span>
                   </div>
 
                   {deadlinePassed && !submission && (
-                    <p className="mt-2 text-xs font-medium text-red-600">Deadline passed — submission closed.</p>
+                    <p className="mt-2 text-xs font-medium text-red-400">
+                      Deadline passed — submission closed.
+                    </p>
                   )}
 
                   {submission && (
-                    <div className="mt-3 rounded-md bg-gray-50 p-3 text-sm">
+                    <div className="mt-3 rounded-md border border-zinc-800/60 bg-zinc-950 p-3 text-sm">
                       {submission.status === "Graded" && (
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-zinc-100">
                           Marks: {submission.marks ?? "—"} / {assignment.maxMarks}
                         </p>
                       )}
-                      {submission.feedback && <p className="mt-1 text-gray-700">{submission.feedback}</p>}
-                      <p className="mt-1 text-xs text-gray-500">
+                      {submission.feedback && <p className="mt-1 text-zinc-300">{submission.feedback}</p>}
+                      <p className="mt-1 text-xs text-zinc-500">
                         {submission.updatedAt || submission.submittedAt
                           ? `Last updated: ${formatDate(submission.updatedAt ?? submission.submittedAt)}`
                           : ""}
@@ -164,12 +162,12 @@ export default function StudentDashboard() {
                       disabled={locked}
                       rows={3}
                       placeholder={locked ? "Closed for editing." : "Write your answer here..."}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400"
+                      className="input"
                     />
                     <button
                       onClick={() => handleSubmit(assignment.id)}
                       disabled={locked || savingId === assignment.id || !(answers[assignment.id] ?? "").trim()}
-                      className="mt-2 rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      className="btn btn-primary mt-2"
                     >
                       {savingId === assignment.id
                         ? "Saving..."

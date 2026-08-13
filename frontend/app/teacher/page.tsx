@@ -78,10 +78,10 @@ export default function TeacherDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       <NavBar title="Teacher Dashboard" />
       <main className="mx-auto max-w-6xl px-4 py-8">
-        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+        {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
 
         {view.type === "submissions" ? (
           <SubmissionPanel
@@ -91,7 +91,7 @@ export default function TeacherDashboard() {
         ) : view.type === "form" ? (
           <>
             {pairs.length === 0 && (
-              <p className="mb-4 text-sm text-amber-700">
+              <p className="mb-4 text-sm text-amber-400">
                 You are not assigned to any class/subject yet. Ask an admin to assign you.
               </p>
             )}
@@ -107,46 +107,39 @@ export default function TeacherDashboard() {
         ) : (
           <>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">My Assignments</h2>
+              <h2 className="text-xl font-semibold text-zinc-50">My Assignments</h2>
               <button
                 onClick={() => setView({ type: "form" })}
                 disabled={pairs.length === 0}
-                className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                className="btn btn-primary"
               >
                 New Assignment
               </button>
             </div>
 
             {loading ? (
-              <p className="text-gray-500">Loading...</p>
+              <p className="text-zinc-400">Loading...</p>
             ) : assignments.length === 0 ? (
-              <p className="text-gray-500">You haven&apos;t created any assignments yet.</p>
+              <p className="text-zinc-400">You haven&apos;t created any assignments yet.</p>
             ) : (
               <div className="space-y-3">
                 {assignments.map((a) => {
                   const deadlinePassed = new Date(a.deadline) <= new Date();
                   return (
-                    <div
-                      key={a.id}
-                      className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
-                    >
+                    <div key={a.id} className="card p-5">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <h3 className="text-base font-semibold text-gray-900">{a.title}</h3>
-                          <p className="mt-0.5 text-sm text-gray-500">
+                          <h3 className="text-base font-semibold text-zinc-50">{a.title}</h3>
+                          <p className="mt-0.5 text-sm text-zinc-400">
                             {a.className} · {a.subjectName}
                           </p>
-                          <p className="mt-1 text-xs text-gray-500">
+                          <p className="mt-1 text-xs text-zinc-500">
                             Deadline: {formatDate(a.deadline)} {deadlinePassed && "(passed)"} · Max{" "}
                             {a.maxMarks} marks
                           </p>
                         </div>
                         <span
-                          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            a.status === "Published"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
+                          className={`badge shrink-0 ${a.status === "Published" ? "badge-green" : "badge-gray"}`}
                         >
                           {a.status}
                         </span>
@@ -155,26 +148,20 @@ export default function TeacherDashboard() {
                       <div className="mt-4 flex flex-wrap gap-2">
                         <button
                           onClick={() => setView({ type: "submissions", assignment: a })}
-                          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                          className="btn btn-primary"
                         >
                           Submissions
                         </button>
-                        <button
-                          onClick={() => togglePublish(a)}
-                          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
-                        >
+                        <button onClick={() => togglePublish(a)} className="btn btn-secondary">
                           {a.status === "Published" ? "Unpublish" : "Publish"}
                         </button>
                         <button
                           onClick={() => setView({ type: "form", editing: a })}
-                          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                          className="btn btn-secondary"
                         >
                           Edit
                         </button>
-                        <button
-                          onClick={() => handleDelete(a)}
-                          className="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
-                        >
+                        <button onClick={() => handleDelete(a)} className="btn btn-danger">
                           Delete
                         </button>
                       </div>

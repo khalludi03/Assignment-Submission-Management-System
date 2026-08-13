@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("users");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       <NavBar title="Admin Dashboard" />
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-6 flex flex-wrap gap-2">
@@ -28,11 +28,7 @@ export default function AdminDashboard() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`rounded-md px-4 py-1.5 text-sm font-medium ${
-                tab === t.key
-                  ? "bg-blue-600 text-white"
-                  : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-              }`}
+              className={tab === t.key ? "btn btn-primary" : "btn btn-secondary"}
             >
               {t.label}
             </button>

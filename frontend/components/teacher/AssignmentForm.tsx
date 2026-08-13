@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import type { Assignment, TeacherAssignment } from "@/lib/types";
 
 interface Props {
@@ -57,39 +57,34 @@ export default function AssignmentForm({ pairs, initial, onSave, onCancel }: Pro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <h3 className="mb-4 text-base font-semibold text-gray-900">
+    <form onSubmit={handleSubmit} className="card p-5">
+      <h3 className="mb-4 text-base font-semibold text-zinc-50">
         {initial ? "Edit Assignment" : "New Assignment"}
       </h3>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">Title</label>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-          />
+          <label className="label">Title</label>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} required className="input" />
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
+          <label className="label">Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Class · Subject</label>
+          <label className="label">Class · Subject</label>
           <select
             value={pairKey}
             onChange={(e) => setPairKey(e.target.value)}
             required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           >
             <option value="" disabled>
               Select...
@@ -103,44 +98,36 @@ export default function AssignmentForm({ pairs, initial, onSave, onCancel }: Pro
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Max marks</label>
+          <label className="label">Max marks</label>
           <input
             type="number"
             min={1}
             value={maxMarks}
             onChange={(e) => setMaxMarks(e.target.value)}
             required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           />
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">Deadline</label>
+          <label className="label">Deadline</label>
           <input
             type="datetime-local"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
             required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           />
         </div>
       </div>
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
 
       <div className="mt-4 flex gap-3">
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
+        <button type="submit" disabled={saving} className="btn btn-primary">
           {saving ? "Saving..." : initial ? "Save changes" : "Create"}
         </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-md border border-gray-300 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
-        >
+        <button type="button" onClick={onCancel} className="btn btn-secondary">
           Cancel
         </button>
       </div>

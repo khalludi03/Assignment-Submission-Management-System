@@ -14,19 +14,19 @@ export default function NavBar({ title }: { title: string }) {
   }
 
   return (
-    <header className="border-b border-gray-200 bg-white">
+    <header className="sticky top-0 z-10 border-b border-zinc-800/80 bg-black/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+        <div className="flex items-center gap-2.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+          <h1 className="text-base font-semibold text-zinc-50">{title}</h1>
+        </div>
         <div className="flex items-center gap-4">
           {user && (
-            <span className="text-sm text-gray-600">
-              {user.fullName} <span className="text-gray-400">({user.role})</span>
+            <span className="text-sm text-zinc-400">
+              {user.fullName} <span className="text-zinc-600">({user.role})</span>
             </span>
           )}
-          <button
-            onClick={handleLogout}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
-          >
+          <button onClick={handleLogout} className="btn btn-secondary">
             Log out
           </button>
         </div>

@@ -55,39 +55,35 @@ export default function ClassesTab() {
 
   return (
     <div>
-      <form onSubmit={handleCreate} className="mb-5 flex max-w-lg gap-3 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+      <form
+        onSubmit={handleCreate}
+        className="card mb-5 flex max-w-lg gap-3 p-5"
+      >
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Class name (e.g. Class 9)"
           required
-          className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="input flex-1"
         />
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
+        <button type="submit" disabled={saving} className="btn btn-primary">
           {saving ? "Adding..." : "Add class"}
         </button>
       </form>
-      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mb-3 text-sm text-red-400">{error}</p>}
 
       {!classes ? (
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-zinc-400">Loading...</p>
       ) : (
-        <div className="max-w-lg overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="card max-w-lg overflow-hidden">
           {classes.length === 0 ? (
-            <p className="p-5 text-sm text-gray-500">No classes yet.</p>
+            <p className="p-5 text-sm text-zinc-400">No classes yet.</p>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-zinc-800/60">
               {classes.map((c) => (
                 <li key={c.id} className="flex items-center justify-between px-5 py-3">
-                  <span className="text-sm text-gray-900">{c.name}</span>
-                  <button
-                    onClick={() => handleDelete(c)}
-                    className="rounded-md border border-red-200 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50"
-                  >
+                  <span className="text-sm text-zinc-100">{c.name}</span>
+                  <button onClick={() => handleDelete(c)} className="btn btn-danger">
                     Delete
                   </button>
                 </li>

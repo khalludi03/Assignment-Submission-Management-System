@@ -79,15 +79,15 @@ export default function UsersTab() {
 
   return (
     <div>
-      <form onSubmit={handleCreate} className="mb-5 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <h3 className="mb-3 text-base font-semibold text-gray-900">Add User</h3>
+      <form onSubmit={handleCreate} className="card mb-5 p-5">
+        <h3 className="mb-3 text-base font-semibold text-zinc-50">Add User</h3>
         <div className="grid gap-3 sm:grid-cols-2">
           <input
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Full name"
             required
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           />
           <input
             type="email"
@@ -95,7 +95,7 @@ export default function UsersTab() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             required
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           />
           <input
             type="password"
@@ -104,12 +104,12 @@ export default function UsersTab() {
             placeholder="Password"
             required
             minLength={6}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           />
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="input"
           >
             <option value="Student">Student</option>
             <option value="Teacher">Teacher</option>
@@ -120,7 +120,7 @@ export default function UsersTab() {
               value={classId}
               onChange={(e) => setClassId(e.target.value)}
               required
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              className="input"
             >
               <option value="" disabled>
                 Select class...
@@ -133,46 +133,37 @@ export default function UsersTab() {
             </select>
           )}
         </div>
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={saving}
-          className="mt-3 rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
+        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+        <button type="submit" disabled={saving} className="btn btn-primary mt-3">
           {saving ? "Creating..." : "Create user"}
         </button>
       </form>
 
       {!users ? (
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-zinc-400">Loading...</p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="card overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-500">
+            <thead className="border-b border-zinc-800 bg-zinc-900 text-xs text-zinc-500">
               <tr>
-                <th className="px-4 py-2.5">Name</th>
-                <th className="px-4 py-2.5">Email</th>
-                <th className="px-4 py-2.5">Role</th>
-                <th className="px-4 py-2.5">Class</th>
+                <th className="px-4 py-2.5 font-medium">Name</th>
+                <th className="px-4 py-2.5 font-medium">Email</th>
+                <th className="px-4 py-2.5 font-medium">Role</th>
+                <th className="px-4 py-2.5 font-medium">Class</th>
                 <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr key={u.id} className="border-b border-gray-100 last:border-0">
-                  <td className="px-4 py-2.5 text-gray-900">{u.fullName}</td>
-                  <td className="px-4 py-2.5 text-gray-600">{u.email}</td>
+                <tr key={u.id} className="border-b border-zinc-800/60 last:border-0">
+                  <td className="px-4 py-2.5 text-zinc-100">{u.fullName}</td>
+                  <td className="px-4 py-2.5 text-zinc-400">{u.email}</td>
                   <td className="px-4 py-2.5">
-                    <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-                      {u.role}
-                    </span>
+                    <span className="badge badge-blue">{u.role}</span>
                   </td>
-                  <td className="px-4 py-2.5 text-gray-600">{u.className ?? "—"}</td>
+                  <td className="px-4 py-2.5 text-zinc-400">{u.className ?? "—"}</td>
                   <td className="px-4 py-2.5 text-right">
-                    <button
-                      onClick={() => handleDelete(u)}
-                      className="rounded-md border border-red-200 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50"
-                    >
+                    <button onClick={() => handleDelete(u)} className="btn btn-danger">
                       Delete
                     </button>
                   </td>

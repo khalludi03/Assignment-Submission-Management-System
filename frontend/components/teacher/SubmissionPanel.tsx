@@ -80,61 +80,56 @@ export default function SubmissionPanel({ assignment, onBack }: Props) {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold text-gray-900">{assignment.title}</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="text-base font-semibold text-zinc-50">{assignment.title}</h3>
+          <p className="text-sm text-zinc-400">
             {assignment.className} · {assignment.subjectName} · Max {assignment.maxMarks} marks
           </p>
         </div>
-        <button
-          onClick={onBack}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
-        >
+        <button onClick={onBack} className="btn btn-secondary">
           ← Back
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-400">{error}</p>}
 
       {!submissions ? (
-        <p className="text-gray-500">Loading submissions...</p>
+        <p className="text-zinc-400">Loading submissions...</p>
       ) : submissions.length === 0 ? (
-        <p className="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
-          No submissions yet.
-        </p>
+        <p className="card p-5 text-sm text-zinc-400">No submissions yet.</p>
       ) : (
         <div className="space-y-4">
           {submissions.map((s) => {
             const draft = drafts[s.id];
             return (
-              <div key={s.id} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <div key={s.id} className="card p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">{s.studentName}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm font-semibold text-zinc-50">{s.studentName}</p>
+                    <p className="text-xs text-zinc-500">
                       Submitted {formatDate(s.submittedAt)}
                       {s.updatedAt ? ` · Updated ${formatDate(s.updatedAt)}` : ""}
                     </p>
                   </div>
                   <span
-                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    className={`badge shrink-0 ${
                       s.status === "Graded"
-                        ? "bg-green-100 text-green-700"
+                        ? "badge-green"
                         : s.status === "Rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-blue-100 text-blue-700"
+                          ? "badge-red"
+                          : "badge-blue"
                     }`}
                   >
                     {s.status}
                   </span>
                 </div>
 
-                <p className="mt-3 whitespace-pre-wrap rounded-md bg-gray-50 p-3 text-sm text-gray-800">
+                <p className="mt-3 whitespace-pre-wrap rounded-md border border-zinc-800/60 bg-zinc-950 p-3 text-sm text-zinc-300">
                   {s.answer}
                 </p>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-[8rem_1fr_auto]">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">Marks</label>
+                    <label className="label">Marks</label>
                     <input
                       type="number"
                       min={0}
@@ -143,21 +138,21 @@ export default function SubmissionPanel({ assignment, onBack }: Props) {
                       onChange={(e) =>
                         setDrafts((prev) => ({ ...prev, [s.id]: { ...prev[s.id], marks: e.target.value } }))
                       }
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                      className="input"
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">Feedback</label>
+                    <label className="label">Feedback</label>
                     <input
                       value={draft?.feedback ?? ""}
                       onChange={(e) =>
                         setDrafts((prev) => ({ ...prev, [s.id]: { ...prev[s.id], feedback: e.target.value } }))
                       }
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                      className="input"
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">Status</label>
+                    <label className="label">Status</label>
                     <select
                       value={draft?.status ?? s.status}
                       onChange={(e) =>
@@ -166,7 +161,7 @@ export default function SubmissionPanel({ assignment, onBack }: Props) {
                           [s.id]: { ...prev[s.id], status: e.target.value as GradeDraft["status"] },
                         }))
                       }
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                      className="input"
                     >
                       <option value="Graded">Graded</option>
                       <option value="Rejected">Rejected</option>
@@ -179,7 +174,7 @@ export default function SubmissionPanel({ assignment, onBack }: Props) {
                   <button
                     onClick={() => handleGrade(s)}
                     disabled={savingId === s.id || draft?.marks === ""}
-                    className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="btn btn-primary"
                   >
                     {savingId === s.id ? "Saving..." : "Save grade"}
                   </button>
