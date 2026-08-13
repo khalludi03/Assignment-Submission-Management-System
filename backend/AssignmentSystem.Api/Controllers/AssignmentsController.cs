@@ -28,6 +28,11 @@ public class AssignmentsController : ControllerBase
     public async Task<ActionResult<List<AssignmentResponse>>> GetForTeacher()
         => Ok(await _service.GetForTeacherAsync(User.GetUserId()));
 
+    [HttpGet("teaching")]
+    [Authorize(Policy = "TeacherOnly")]
+    public async Task<ActionResult<List<TeacherAssignmentResponse>>> GetTeachingAssignments()
+        => Ok(await _service.GetTeachingAssignmentsAsync(User.GetUserId()));
+
     [HttpPost]
     [Authorize(Policy = "TeacherOnly")]
     public async Task<ActionResult<AssignmentResponse>> Create(CreateAssignmentRequest request)

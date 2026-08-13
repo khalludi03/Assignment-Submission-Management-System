@@ -13,6 +13,7 @@ public interface IAssignmentService
     Task<AssignmentResponse> SetStatusAsync(int teacherId, int assignmentId, AssignmentStatus status);
     Task<List<AssignmentResponse>> GetForTeacherAsync(int teacherId);
     Task<List<AssignmentResponse>> GetForStudentAsync(int studentId);
+    Task<List<TeacherAssignmentResponse>> GetTeachingAssignmentsAsync(int teacherId);
 }
 
 public class AssignmentService : IAssignmentService
@@ -121,6 +122,21 @@ public class AssignmentService : IAssignmentService
             .ToListAsync();
 
         return assignments.Select(ToResponse).ToList();
+    }
+
+    public async Task<List<TeacherAssignmentResponse>> GetTeachingAssignmentsAsync(int teacherId)
+    {
+        var assignments = await _db.TeacherAssignments.AsNoTracking()
+            .Where(ta => ta.TeacherId == teacherId)
+            .Include(ta => ta.Teacher)
+            .Include(ta => ta.Class)
+            .Include(ta => ta.Subject)
+            .ToListAsync();
+
+        return assignments.Select(ta => new TeacherAssignmentResponse(
+            ta.TeacherId, ta.Teacher?.FullName ?? string.Empty,
+            ta.ClassId, ta.Class.Name,
+            ta.SubjectId, ta.Subject.Name)).ToList();
     }
 
     private async Task<Assignment> FindOwnedAsync(int teacherId, int assignmentId)
