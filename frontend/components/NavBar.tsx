@@ -1,11 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { clearSession, getSessionUser } from "@/lib/auth";
 
 export default function NavBar({ title }: { title: string }) {
   const router = useRouter();
-  const user = getSessionUser();
+  const [user, setUser] = useState<{ email: string; fullName: string; role: string } | null>(null);
+
+  useEffect(() => {
+    setUser(getSessionUser());
+  }, []);
 
   function handleLogout() {
     clearSession();
