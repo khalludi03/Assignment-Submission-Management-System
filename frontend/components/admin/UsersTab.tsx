@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { delay } from "@/lib/delay";
 import type { ClassItem, User } from "@/lib/types";
 
 export default function UsersTab() {
@@ -42,16 +43,19 @@ export default function UsersTab() {
     setError(null);
     setSaving(true);
     try {
-      const created = await api<User>("/api/admin/users", {
-        method: "POST",
-        body: {
-          fullName,
-          email,
-          password,
-          role,
-          classId: role === "Student" ? Number(classId) : null,
-        },
-      });
+      const [created] = await Promise.all([
+        api<User>("/api/admin/users", {
+          method: "POST",
+          body: {
+            fullName,
+            email,
+            password,
+            role,
+            classId: role === "Student" ? Number(classId) : null,
+          },
+        }),
+        delay(1400),
+      ]);
       setUsers((prev) => (prev ? [...prev, created] : prev));
       setFullName("");
       setEmail("");
@@ -133,7 +137,14 @@ export default function UsersTab() {
         </div>
         {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
         <button type="submit" disabled={saving} className="btn btn-primary mt-3">
-          {saving ? "Creating..." : "Create user"}
+          {saving ? (
+            <>
+              <span className="spinner" />
+              Creating...
+            </>
+          ) : (
+            "Create user"
+          )}
         </button>
       </form>
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { setSession } from "@/lib/auth";
 import { roleHome } from "@/lib/roles";
+import { delay } from "@/lib/delay";
 import type { LoginResponse } from "@/lib/types";
 
 export default function LoginPage() {
@@ -19,10 +20,13 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const data = await api<LoginResponse>("/api/auth/login", {
-        method: "POST",
-        body: { email, password },
-      });
+      const [data] = await Promise.all([
+        api<LoginResponse>("/api/auth/login", {
+          method: "POST",
+          body: { email, password },
+        }),
+        delay(1400),
+      ]);
       setSession(data.token, data.email, data.fullName, data.role);
       router.push(roleHome[data.role] ?? "/login");
       router.refresh();
@@ -74,13 +78,20 @@ export default function LoginPage() {
 
           {error && <p className="text-sm text-red-400">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary w-full"
-          >
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary w-full"
+            >
+              {loading ? (
+                <>
+                  <span className="spinner" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
+            </button>
         </form>
       </div>
     </main>

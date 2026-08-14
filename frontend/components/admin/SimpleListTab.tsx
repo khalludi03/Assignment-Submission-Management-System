@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { delay } from "@/lib/delay";
 
 interface Props {
   fetchUrl: string;
@@ -46,7 +47,10 @@ export default function SimpleListTab({
     setError(null);
     setSaving(true);
     try {
-      const created = await api<{ id: number; name: string }>(createUrl, { method: "POST", body: { name } });
+      const [created] = await Promise.all([
+        api<{ id: number; name: string }>(createUrl, { method: "POST", body: { name } }),
+        delay(1400),
+      ]);
       setItems((prev) => (prev ? [...prev, created] : prev));
       setName("");
     } catch (err) {
@@ -77,7 +81,14 @@ export default function SimpleListTab({
           className="input flex-1"
         />
         <button type="submit" disabled={saving} className="btn btn-primary">
-          {saving ? "Adding..." : buttonLabel}
+          {saving ? (
+            <>
+              <span className="spinner" />
+              Adding...
+            </>
+          ) : (
+            buttonLabel
+          )}
         </button>
       </form>
       {error && <p className="mb-3 text-sm text-red-400">{error}</p>}

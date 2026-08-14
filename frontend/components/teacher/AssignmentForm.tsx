@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api } from "@/lib/api";
+import { delay } from "@/lib/delay";
 import type { Assignment, TeacherAssignment } from "@/lib/types";
 
 interface Props {
@@ -51,9 +52,12 @@ export default function AssignmentForm({ pairs, initial, onSave, onCancel }: Pro
 
     setSaving(true);
     try {
-      const saved = initial
-        ? await api<Assignment>(`/api/assignments/${initial.id}`, { method: "PUT", body })
-        : await api<Assignment>("/api/assignments", { method: "POST", body });
+      const [saved] = await Promise.all([
+        initial
+          ? api<Assignment>(`/api/assignments/${initial.id}`, { method: "PUT", body })
+          : api<Assignment>("/api/assignments", { method: "POST", body }),
+        delay(1400),
+      ]);
       onSave(saved);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save assignment.");
@@ -131,7 +135,16 @@ export default function AssignmentForm({ pairs, initial, onSave, onCancel }: Pro
 
       <div className="mt-4 flex gap-3">
         <button type="submit" disabled={saving} className="btn btn-primary">
-          {saving ? "Saving..." : initial ? "Save changes" : "Create"}
+          {saving ? (
+            <>
+              <span className="spinner" />
+              Saving...
+            </>
+          ) : initial ? (
+            "Save changes"
+          ) : (
+            "Create"
+          )}
         </button>
         <button type="button" onClick={onCancel} className="btn btn-secondary">
           Cancel

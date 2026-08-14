@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { clearSession, getSessionUser } from "@/lib/auth";
+import { delay } from "@/lib/delay";
 
 type SessionUser = { email: string; fullName: string; role: string } | null;
 
@@ -26,8 +27,11 @@ export default function NavBar({ title }: { title: string }) {
   const router = useRouter();
   const user = useSyncExternalStore(subscribe, getSnapshot, () => null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  function handleLogout() {
+  async function handleLogout() {
+    setLoggingOut(true);
+    await delay(1200);
     clearSession();
     router.push("/login");
     router.refresh();
@@ -47,8 +51,15 @@ export default function NavBar({ title }: { title: string }) {
               {user.fullName} <span className="text-zinc-600">({user.role})</span>
             </span>
           )}
-          <button onClick={handleLogout} className="btn btn-secondary">
-            Log out
+          <button onClick={handleLogout} disabled={loggingOut} className="btn btn-secondary">
+            {loggingOut ? (
+              <>
+                <span className="spinner" />
+                Logging out...
+              </>
+            ) : (
+              "Log out"
+            )}
           </button>
         </div>
 
@@ -89,8 +100,15 @@ export default function NavBar({ title }: { title: string }) {
               {user.fullName} <span className="text-zinc-600">({user.role})</span>
             </p>
           )}
-          <button onClick={handleLogout} className="btn btn-secondary w-full">
-            Log out
+          <button onClick={handleLogout} disabled={loggingOut} className="btn btn-secondary w-full">
+            {loggingOut ? (
+              <>
+                <span className="spinner" />
+                Logging out...
+              </>
+            ) : (
+              "Log out"
+            )}
           </button>
         </div>
       )}
