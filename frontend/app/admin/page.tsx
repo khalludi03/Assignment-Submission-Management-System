@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import NavBar from "@/components/NavBar";
+import OverviewTab from "@/components/admin/OverviewTab";
 import UsersTab from "@/components/admin/UsersTab";
 import ClassesTab from "@/components/admin/ClassesTab";
 import SubjectsTab from "@/components/admin/SubjectsTab";
 import TeacherAssignmentsTab from "@/components/admin/TeacherAssignmentsTab";
 
-type Tab = "users" | "classes" | "subjects" | "teacherAssignments";
+type Tab = "overview" | "users" | "classes" | "subjects" | "teacherAssignments";
 
 const TABS: { key: Tab; label: string }[] = [
+  { key: "overview", label: "Overview" },
   { key: "users", label: "Users" },
   { key: "classes", label: "Classes" },
   { key: "subjects", label: "Subjects" },
@@ -17,7 +19,7 @@ const TABS: { key: Tab; label: string }[] = [
 ];
 
 export default function AdminDashboard() {
-  const [tab, setTab] = useState<Tab>("users");
+  const [tab, setTab] = useState<Tab>("overview");
 
   return (
     <div className="min-h-screen bg-black">
@@ -35,6 +37,7 @@ export default function AdminDashboard() {
           ))}
         </div>
 
+        {tab === "overview" && <OverviewTab />}
         {tab === "users" && <UsersTab />}
         {tab === "classes" && <ClassesTab />}
         {tab === "subjects" && <SubjectsTab />}

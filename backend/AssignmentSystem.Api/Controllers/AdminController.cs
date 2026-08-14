@@ -79,4 +79,12 @@ public class AdminController : ControllerBase
         await _service.UnassignTeacherAsync(teacherId, classId, subjectId);
         return NoContent();
     }
+
+    [HttpGet("assignments")]
+    public async Task<ActionResult<List<AssignmentResponse>>> GetAllAssignments()
+        => Ok(await _service.GetAllAssignmentsAsync());
+
+    [HttpGet("submissions")]
+    public async Task<ActionResult<List<SubmissionResponse>>> GetAllSubmissions()
+        => Ok(await _service.GetAllSubmissionsAsync());
 }

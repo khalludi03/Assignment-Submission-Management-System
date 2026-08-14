@@ -20,6 +20,8 @@ public interface IAdminService
     Task<List<TeacherAssignmentResponse>> GetTeacherAssignmentsAsync();
     Task AssignTeacherAsync(AssignTeacherRequest request);
     Task UnassignTeacherAsync(int teacherId, int classId, int subjectId);
+    Task<List<AssignmentResponse>> GetAllAssignmentsAsync();
+    Task<List<SubmissionResponse>> GetAllSubmissionsAsync();
 }
 
 public class AdminService : IAdminService
@@ -162,6 +164,35 @@ public class AdminService : IAdminService
             ta.TeacherId, ta.Teacher.FullName,
             ta.ClassId, ta.Class.Name,
             ta.SubjectId, ta.Subject.Name)).ToList();
+    }
+
+    public async Task<List<AssignmentResponse>> GetAllAssignmentsAsync()
+    {
+        var assignments = await _db.Assignments.AsNoTracking()
+            .Include(a => a.Class)
+            .Include(a => a.Subject)
+            .Include(a => a.Teacher)
+            .OrderByDescending(a => a.Deadline)
+            .ToListAsync();
+
+        return assignments.Select(a => new AssignmentResponse(
+            a.Id, a.Title, a.Description, a.Deadline, a.MaxMarks, a.Status.ToString(),
+            a.ClassId, a.Class.Name, a.SubjectId, a.Subject.Name, a.Teacher.FullName)).ToList();
+    }
+
+    public async Task<List<SubmissionResponse>> GetAllSubmissionsAsync()
+    {
+        var submissions = await _db.Submissions.AsNoTracking()
+            .Include(s => s.Assignment)
+            .Include(s => s.Student)
+            .OrderByDescending(s => s.SubmittedAt)
+            .ToListAsync();
+
+        return submissions.Select(s => new SubmissionResponse(
+            s.Id, s.Answer, s.Status.ToString(), s.Marks, s.Feedback,
+            s.SubmittedAt, s.UpdatedAt,
+            s.AssignmentId, s.Assignment.Title,
+            s.StudentId, s.Student.FullName)).ToList();
     }
 
     public async Task AssignTeacherAsync(AssignTeacherRequest request)
