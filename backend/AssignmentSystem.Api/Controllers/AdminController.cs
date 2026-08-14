@@ -70,7 +70,7 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> AssignTeacher(AssignTeacherRequest request)
     {
         await _service.AssignTeacherAsync(request);
-        return StatusCode(StatusCodes.Status201Created);
+        return NoContent();
     }
 
     [HttpDelete("teacher-assignments/{teacherId:int}/{classId:int}/{subjectId:int}")]
