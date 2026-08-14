@@ -1,4 +1,4 @@
-import { getToken } from "./auth";
+import { clearSession, getToken } from "./auth";
 
 export class ApiError extends Error {
   status: number;
@@ -38,6 +38,15 @@ export async function api<T>(path: string, options: ApiOptions = {}): Promise<T>
     } catch {
       // keep default message
     }
+
+    if (res.status === 401 && !path.startsWith("/api/auth/login")) {
+      clearSession();
+      // Full reload so the proxy re-runs and redirects by role; router.push
+      // would skip the middleware on client-side navigation.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign("/login");
+    }
+
     throw new ApiError(res.status, message);
   }
 

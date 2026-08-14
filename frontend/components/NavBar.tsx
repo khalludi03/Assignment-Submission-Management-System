@@ -1,16 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { clearSession, getSessionUser } from "@/lib/auth";
 
+type SessionUser = { email: string; fullName: string; role: string } | null;
+
+let cachedCookie: string | null = null;
+let cachedUser: SessionUser = null;
+
+function getSnapshot(): SessionUser {
+  const raw = document.cookie;
+  if (raw !== cachedCookie) {
+    cachedCookie = raw;
+    cachedUser = getSessionUser();
+  }
+  return cachedUser;
+}
+
+function subscribe(): () => void {
+  return () => {};
+}
+
 export default function NavBar({ title }: { title: string }) {
   const router = useRouter();
-  const [user, setUser] = useState<{ email: string; fullName: string; role: string } | null>(null);
-
-  useEffect(() => {
-    setUser(getSessionUser());
-  }, []);
+  const user = useSyncExternalStore(subscribe, getSnapshot, () => null);
 
   function handleLogout() {
     clearSession();

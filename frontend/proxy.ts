@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-
-const roleHome: Record<string, string> = {
-  Admin: "/admin",
-  Teacher: "/teacher",
-  Student: "/student",
-};
+import { roleHome } from "@/lib/roles";
 
 function roleForPath(pathname: string): string | null {
   if (pathname === "/admin" || pathname.startsWith("/admin/")) return "Admin";

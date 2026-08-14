@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, ApiError } from "@/lib/api";
-import { clearSession } from "@/lib/auth";
+import { api } from "@/lib/api";
 import type { ClassItem, SubjectItem, TeacherAssignment, User } from "@/lib/types";
 
 export default function TeacherAssignmentsTab() {
@@ -16,32 +15,32 @@ export default function TeacherAssignmentsTab() {
   const [teacherId, setTeacherId] = useState("");
   const [classId, setClassId] = useState("");
   const [subjectId, setSubjectId] = useState("");
-
-  async function load() {
-    try {
-      const [a, u, c, s] = await Promise.all([
-        api<TeacherAssignment[]>("/api/admin/teacher-assignments"),
-        api<User[]>("/api/admin/users"),
-        api<ClassItem[]>("/api/admin/classes"),
-        api<SubjectItem[]>("/api/admin/subjects"),
-      ]);
-      setAssignments(a);
-      setTeachers(u.filter((user) => user.role === "Teacher"));
-      setClasses(c);
-      setSubjects(s);
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        clearSession();
-        window.location.assign("/login");
-        return;
-      }
-      setError(err instanceof Error ? err.message : "Failed to load teacher assignments.");
-    }
-  }
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const [a, u, c, s] = await Promise.all([
+          api<TeacherAssignment[]>("/api/admin/teacher-assignments"),
+          api<User[]>("/api/admin/users"),
+          api<ClassItem[]>("/api/admin/classes"),
+          api<SubjectItem[]>("/api/admin/subjects"),
+        ]);
+        if (cancelled) return;
+        setAssignments(a);
+        setTeachers(u.filter((user) => user.role === "Teacher"));
+        setClasses(c);
+        setSubjects(s);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load teacher assignments.");
+      }
+    }
     load();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshKey]);
 
   async function handleAssign(e: React.FormEvent) {
     e.preventDefault();
@@ -52,7 +51,7 @@ export default function TeacherAssignmentsTab() {
         method: "POST",
         body: { teacherId: Number(teacherId), classId: Number(classId), subjectId: Number(subjectId) },
       });
-      await load();
+      setRefreshKey((k) => k + 1);
       setTeacherId("");
       setClassId("");
       setSubjectId("");

@@ -1,14 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, ApiError } from "@/lib/api";
-import { clearSession } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { formatDate } from "@/lib/format";
 import type { Assignment, Submission } from "@/lib/types";
-
-function formatDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString();
-}
 
 export default function OverviewTab() {
   const [assignments, setAssignments] = useState<Assignment[] | null>(null);
@@ -16,24 +11,24 @@ export default function OverviewTab() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       try {
-        const [a, s] = await Promise.all([
+        const [assignments, submissions] = await Promise.all([
           api<Assignment[]>("/api/admin/assignments"),
           api<Submission[]>("/api/admin/submissions"),
         ]);
-        setAssignments(a);
-        setSubmissions(s);
+        if (cancelled) return;
+        setAssignments(assignments);
+        setSubmissions(submissions);
       } catch (err) {
-        if (err instanceof ApiError && err.status === 401) {
-          clearSession();
-          window.location.assign("/login");
-          return;
-        }
-        setError(err instanceof Error ? err.message : "Failed to load data.");
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load data.");
       }
     }
     load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (error) return <p className="text-sm text-red-400">{error}</p>;

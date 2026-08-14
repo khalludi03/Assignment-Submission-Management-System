@@ -4,18 +4,14 @@ import { useEffect, useState } from "react";
 import NavBar from "@/components/NavBar";
 import AssignmentForm from "@/components/teacher/AssignmentForm";
 import SubmissionPanel from "@/components/teacher/SubmissionPanel";
-import { api, ApiError } from "@/lib/api";
-import { clearSession } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { formatDate } from "@/lib/format";
 import type { Assignment, TeacherAssignment } from "@/lib/types";
 
 type View =
   | { type: "list" }
   | { type: "form"; editing?: Assignment }
   | { type: "submissions"; assignment: Assignment };
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString();
-}
 
 export default function TeacherDashboard() {
   const [pairs, setPairs] = useState<TeacherAssignment[]>([]);
@@ -24,28 +20,27 @@ export default function TeacherDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  async function load() {
-    try {
-      const [pairData, assignmentData] = await Promise.all([
-        api<TeacherAssignment[]>("/api/assignments/teaching"),
-        api<Assignment[]>("/api/assignments/teacher"),
-      ]);
-      setPairs(pairData);
-      setAssignments(assignmentData);
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        clearSession();
-        window.location.assign("/login");
-        return;
-      }
-      setError(err instanceof Error ? err.message : "Failed to load data.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const [pairData, assignmentData] = await Promise.all([
+          api<TeacherAssignment[]>("/api/assignments/teaching"),
+          api<Assignment[]>("/api/assignments/teacher"),
+        ]);
+        if (cancelled) return;
+        setPairs(pairData);
+        setAssignments(assignmentData);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load data.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
     load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function togglePublish(a: Assignment) {

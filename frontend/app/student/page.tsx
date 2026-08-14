@@ -2,18 +2,13 @@
 
 import { useEffect, useState } from "react";
 import NavBar from "@/components/NavBar";
-import { api, ApiError } from "@/lib/api";
-import { clearSession } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { formatDate } from "@/lib/format";
 import type { Assignment, Submission } from "@/lib/types";
 
 interface Merged {
   assignment: Assignment;
   submission?: Submission;
-}
-
-function formatDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString();
 }
 
 export default function StudentDashboard() {
@@ -23,12 +18,14 @@ export default function StudentDashboard() {
   const [savingId, setSavingId] = useState<number | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       try {
         const [assignments, submissions] = await Promise.all([
           api<Assignment[]>("/api/assignments/my"),
           api<Submission[]>("/api/submissions/mine"),
         ]);
+        if (cancelled) return;
         const merged: Merged[] = assignments.map((assignment) => ({
           assignment,
           submission: submissions.find((s) => s.assignmentId === assignment.id),
@@ -38,15 +35,13 @@ export default function StudentDashboard() {
         for (const a of assignments) draft[a.id] = "";
         setAnswers(draft);
       } catch (err) {
-        if (err instanceof ApiError && err.status === 401) {
-          clearSession();
-          window.location.assign("/login");
-          return;
-        }
-        setError(err instanceof Error ? err.message : "Failed to load assignments.");
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load assignments.");
       }
     }
     load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleSubmit(assignmentId: number) {
@@ -69,11 +64,6 @@ export default function StudentDashboard() {
       );
       setAnswers((prev) => ({ ...prev, [assignmentId]: "" }));
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        clearSession();
-        window.location.assign("/login");
-        return;
-      }
       alert(err instanceof Error ? err.message : "Failed to submit.");
     } finally {
       setSavingId(null);

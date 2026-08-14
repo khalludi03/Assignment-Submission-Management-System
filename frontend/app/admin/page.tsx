@@ -4,8 +4,7 @@ import { useState } from "react";
 import NavBar from "@/components/NavBar";
 import OverviewTab from "@/components/admin/OverviewTab";
 import UsersTab from "@/components/admin/UsersTab";
-import ClassesTab from "@/components/admin/ClassesTab";
-import SubjectsTab from "@/components/admin/SubjectsTab";
+import SimpleListTab from "@/components/admin/SimpleListTab";
 import TeacherAssignmentsTab from "@/components/admin/TeacherAssignmentsTab";
 
 type Tab = "overview" | "users" | "classes" | "subjects" | "teacherAssignments";
@@ -39,8 +38,26 @@ export default function AdminDashboard() {
 
         {tab === "overview" && <OverviewTab />}
         {tab === "users" && <UsersTab />}
-        {tab === "classes" && <ClassesTab />}
-        {tab === "subjects" && <SubjectsTab />}
+        {tab === "classes" && (
+          <SimpleListTab
+            fetchUrl="/api/admin/classes"
+            createUrl="/api/admin/classes"
+            deleteUrl={(id) => `/api/admin/classes/${id}`}
+            inputPlaceholder="Class name (e.g. Class 9)"
+            emptyText="No classes yet."
+            buttonLabel="Add class"
+          />
+        )}
+        {tab === "subjects" && (
+          <SimpleListTab
+            fetchUrl="/api/admin/subjects"
+            createUrl="/api/admin/subjects"
+            deleteUrl={(id) => `/api/admin/subjects/${id}`}
+            inputPlaceholder="Subject name (e.g. Physics)"
+            emptyText="No subjects yet."
+            buttonLabel="Add subject"
+          />
+        )}
         {tab === "teacherAssignments" && <TeacherAssignmentsTab />}
       </main>
     </div>

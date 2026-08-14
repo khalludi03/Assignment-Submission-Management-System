@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { setSession, roleHome } from "@/lib/auth";
+import { setSession } from "@/lib/auth";
+import { roleHome } from "@/lib/roles";
 import type { LoginResponse } from "@/lib/types";
 
 export default function LoginPage() {

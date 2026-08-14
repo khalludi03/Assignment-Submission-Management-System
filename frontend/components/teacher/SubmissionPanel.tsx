@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, ApiError } from "@/lib/api";
-import { clearSession } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { formatDate } from "@/lib/format";
 import type { Assignment, Submission } from "@/lib/types";
 
 interface Props {
@@ -16,11 +16,6 @@ interface GradeDraft {
   status: "Submitted" | "Graded" | "Rejected";
 }
 
-function formatDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString();
-}
-
 export default function SubmissionPanel({ assignment, onBack }: Props) {
   const [submissions, setSubmissions] = useState<Submission[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,9 +23,11 @@ export default function SubmissionPanel({ assignment, onBack }: Props) {
   const [savingId, setSavingId] = useState<number | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       try {
         const data = await api<Submission[]>(`/api/submissions/assignment/${assignment.id}`);
+        if (cancelled) return;
         setSubmissions(data);
         const drafts: Record<number, GradeDraft> = {};
         for (const s of data) {
@@ -42,15 +39,13 @@ export default function SubmissionPanel({ assignment, onBack }: Props) {
         }
         setDrafts(drafts);
       } catch (err) {
-        if (err instanceof ApiError && err.status === 401) {
-          clearSession();
-          window.location.assign("/login");
-          return;
-        }
-        setError(err instanceof Error ? err.message : "Failed to load submissions.");
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load submissions.");
       }
     }
     load();
+    return () => {
+      cancelled = true;
+    };
   }, [assignment.id]);
 
   async function handleGrade(submission: Submission) {

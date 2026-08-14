@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, ApiError } from "@/lib/api";
-import { clearSession } from "@/lib/auth";
+import { api } from "@/lib/api";
 import type { ClassItem, User } from "@/lib/types";
 
 export default function UsersTab() {
@@ -17,26 +16,25 @@ export default function UsersTab() {
   const [role, setRole] = useState("Student");
   const [classId, setClassId] = useState("");
 
-  async function load() {
-    try {
-      const [u, c] = await Promise.all([
-        api<User[]>("/api/admin/users"),
-        api<ClassItem[]>("/api/admin/classes"),
-      ]);
-      setUsers(u);
-      setClasses(c);
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        clearSession();
-        window.location.assign("/login");
-        return;
-      }
-      setError(err instanceof Error ? err.message : "Failed to load users.");
-    }
-  }
-
   useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const [users, classes] = await Promise.all([
+          api<User[]>("/api/admin/users"),
+          api<ClassItem[]>("/api/admin/classes"),
+        ]);
+        if (cancelled) return;
+        setUsers(users);
+        setClasses(classes);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load users.");
+      }
+    }
     load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleCreate(e: React.FormEvent) {
