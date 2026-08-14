@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Assignment & Submission Management System",
+  title: "AMASS",
   description: "Role-based assignment management for schools and colleges.",
 };
 

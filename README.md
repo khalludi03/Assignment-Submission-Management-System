@@ -1,4 +1,4 @@
-# Assignment & Submission Management System
+# AMASS (Assignment & Submission Management System)
 
 A role-based school/college web application for managing assignments and submissions. Teachers create and
 publish assignments for the classes and subjects they teach; students view assignments, submit answers and
