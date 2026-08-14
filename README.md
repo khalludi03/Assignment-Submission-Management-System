@@ -221,7 +221,3 @@ API through environment variables.
 - Frontend form validation is minimal (HTML `required` + basic checks); the backend remains the source of
   truth for validation.
 - Swagger is enabled only in the Development environment.
-
----
-
-© OnnoRokom Projukti Limited — evaluation project.
