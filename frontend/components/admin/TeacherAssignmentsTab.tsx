@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { delay } from "@/lib/delay";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import type { ClassItem, SubjectItem, TeacherAssignment, User } from "@/lib/types";
 
 export default function TeacherAssignmentsTab() {
@@ -16,6 +18,8 @@ export default function TeacherAssignmentsTab() {
   const [classId, setClassId] = useState("");
   const [subjectId, setSubjectId] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [pendingUnassign, setPendingUnassign] = useState<TeacherAssignment | null>(null);
+  const [unassigning, setUnassigning] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,11 +67,20 @@ export default function TeacherAssignmentsTab() {
   }
 
   async function handleUnassign(ta: TeacherAssignment) {
-    if (!confirm(`Unassign ${ta.teacherName} from ${ta.className} · ${ta.subjectName}?`)) return;
+    setPendingUnassign(ta);
+  }
+
+  async function handleUnassignConfirm() {
+    if (!pendingUnassign) return;
+    setUnassigning(true);
     try {
-      await api(`/api/admin/teacher-assignments/${ta.teacherId}/${ta.classId}/${ta.subjectId}`, {
-        method: "DELETE",
-      });
+      const ta = pendingUnassign;
+      await Promise.all([
+        api(`/api/admin/teacher-assignments/${ta.teacherId}/${ta.classId}/${ta.subjectId}`, {
+          method: "DELETE",
+        }),
+        delay(1200),
+      ]);
       setAssignments((prev) =>
         prev
           ? prev.filter(
@@ -76,8 +89,11 @@ export default function TeacherAssignmentsTab() {
             )
           : prev,
       );
+      setPendingUnassign(null);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to unassign teacher.");
+    } finally {
+      setUnassigning(false);
     }
   }
 
@@ -166,6 +182,20 @@ export default function TeacherAssignmentsTab() {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingUnassign !== null}
+        title="Unassign teacher?"
+        message={
+          pendingUnassign
+            ? `This will remove ${pendingUnassign.teacherName} from ${pendingUnassign.className} · ${pendingUnassign.subjectName}.`
+            : ""
+        }
+        confirmLabel="Unassign"
+        busy={unassigning}
+        onConfirm={handleUnassignConfirm}
+        onCancel={() => setPendingUnassign(null)}
+      />
     </div>
   );
 }
