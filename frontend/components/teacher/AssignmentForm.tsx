@@ -34,10 +34,16 @@ export default function AssignmentForm({ pairs, initial, onSave, onCancel }: Pro
       return;
     }
 
+    const parsedDeadline = new Date(deadline);
+    if (Number.isNaN(parsedDeadline.getTime())) {
+      setError("Enter a valid deadline.");
+      return;
+    }
+
     const body = {
       title: title.trim(),
       description: description.trim() || null,
-      deadline: new Date(deadline).toISOString(),
+      deadline: parsedDeadline.toISOString(),
       maxMarks: Number(maxMarks),
       classId,
       subjectId,
