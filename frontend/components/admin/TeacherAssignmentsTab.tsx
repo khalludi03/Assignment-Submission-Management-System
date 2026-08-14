@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { delay } from "@/lib/delay";
+import { useConfirmDelete } from "@/lib/useConfirmDelete";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import type { ClassItem, SubjectItem, TeacherAssignment, User } from "@/lib/types";
 
@@ -18,9 +18,22 @@ export default function TeacherAssignmentsTab() {
   const [classId, setClassId] = useState("");
   const [subjectId, setSubjectId] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-  const [pendingUnassign, setPendingUnassign] = useState<TeacherAssignment | null>(null);
-  const [unassigning, setUnassigning] = useState(false);
-  const [unassignError, setUnassignError] = useState<string | null>(null);
+  const { pending, busy, error: unassignError, begin, cancel, confirm } = useConfirmDelete<TeacherAssignment>(
+    async (ta) => {
+      await api(`/api/admin/teacher-assignments/${ta.teacherId}/${ta.classId}/${ta.subjectId}`, {
+        method: "DELETE",
+      });
+      setAssignments((prev) =>
+        prev
+          ? prev.filter(
+              (x) =>
+                !(x.teacherId === ta.teacherId && x.classId === ta.classId && x.subjectId === ta.subjectId),
+            )
+          : prev,
+      );
+    },
+    "Failed to unassign teacher.",
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -64,38 +77,6 @@ export default function TeacherAssignmentsTab() {
       setError(err instanceof Error ? err.message : "Failed to assign teacher.");
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function handleUnassign(ta: TeacherAssignment) {
-    setUnassignError(null);
-    setPendingUnassign(ta);
-  }
-
-  async function handleUnassignConfirm() {
-    if (!pendingUnassign) return;
-    setUnassigning(true);
-    try {
-      const ta = pendingUnassign;
-      await Promise.all([
-        api(`/api/admin/teacher-assignments/${ta.teacherId}/${ta.classId}/${ta.subjectId}`, {
-          method: "DELETE",
-        }),
-        delay(1200),
-      ]);
-      setAssignments((prev) =>
-        prev
-          ? prev.filter(
-              (x) =>
-                !(x.teacherId === ta.teacherId && x.classId === ta.classId && x.subjectId === ta.subjectId),
-            )
-          : prev,
-      );
-      setPendingUnassign(null);
-    } catch (err) {
-      setUnassignError(err instanceof Error ? err.message : "Failed to unassign teacher.");
-    } finally {
-      setUnassigning(false);
     }
   }
 
@@ -175,10 +156,9 @@ export default function TeacherAssignmentsTab() {
                       {ta.className} · {ta.subjectName}
                     </p>
                   </div>
-                  <button onClick={() => handleUnassign(ta)} className="btn btn-danger">
+                  <button onClick={() => begin(ta)} className="btn btn-danger">
                     Unassign
-                  </button>
-                </li>
+                  </button>                </li>
               ))}
             </ul>
           )}
@@ -186,18 +166,18 @@ export default function TeacherAssignmentsTab() {
       )}
 
       <ConfirmDialog
-        open={pendingUnassign !== null}
+        open={pending !== null}
         title="Unassign teacher?"
         message={
-          pendingUnassign
-            ? `This will remove ${pendingUnassign.teacherName} from ${pendingUnassign.className} · ${pendingUnassign.subjectName}.`
+          pending
+            ? `This will remove ${pending.teacherName} from ${pending.className} · ${pending.subjectName}.`
             : ""
         }
         confirmLabel="Unassign"
-        busy={unassigning}
+        busy={busy}
         error={unassignError}
-        onConfirm={handleUnassignConfirm}
-        onCancel={() => setPendingUnassign(null)}
+        onConfirm={confirm}
+        onCancel={cancel}
       />
     </div>
   );

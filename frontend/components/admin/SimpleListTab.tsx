@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { delay } from "@/lib/delay";
+import { useConfirmDelete } from "@/lib/useConfirmDelete";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 interface Props {
@@ -28,9 +29,12 @@ export default function SimpleListTab({
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<{ id: number; name: string } | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const { pending, busy, error: deleteError, begin, cancel, confirm } = useConfirmDelete<
+    { id: number; name: string }
+  >(async (item) => {
+    await api(deleteUrl(item.id), { method: "DELETE" });
+    setItems((prev) => (prev ? prev.filter((x) => x.id !== item.id) : prev));
+  }, "Failed to delete.");
 
   useEffect(() => {
     let cancelled = false;
@@ -63,25 +67,6 @@ export default function SimpleListTab({
       setError(err instanceof Error ? err.message : "Failed to create.");
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function handleDeleteConfirm() {
-    if (!pendingDelete) return;
-    setDeleting(true);
-    setDeleteError(null);
-    try {
-      const item = pendingDelete;
-      await Promise.all([
-        api(deleteUrl(item.id), { method: "DELETE" }),
-        delay(1200),
-      ]);
-      setItems((prev) => (prev ? prev.filter((x) => x.id !== item.id) : prev));
-      setPendingDelete(null);
-    } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : "Failed to delete.");
-    } finally {
-      setDeleting(false);
     }
   }
 
@@ -119,7 +104,7 @@ export default function SimpleListTab({
               {items.map((item) => (
                 <li key={item.id} className="flex items-center justify-between px-5 py-3">
                   <span className="text-sm text-zinc-100">{item.name}</span>
-                  <button onClick={() => setPendingDelete(item)} className="btn btn-danger">
+                  <button onClick={() => begin(item)} className="btn btn-danger">
                     Delete
                   </button>
                 </li>
@@ -130,14 +115,14 @@ export default function SimpleListTab({
       )}
 
       <ConfirmDialog
-        open={pendingDelete !== null}
+        open={pending !== null}
         title={`Delete ${noun}?`}
-        message={pendingDelete ? `This will remove "${pendingDelete.name}".` : ""}
+        message={pending ? `This will remove "${pending.name}".` : ""}
         confirmLabel="Delete"
-        busy={deleting}
+        busy={busy}
         error={deleteError}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setPendingDelete(null)}
+        onConfirm={confirm}
+        onCancel={cancel}
       />
     </div>
   );
