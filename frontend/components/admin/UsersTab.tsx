@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { delay } from "@/lib/delay";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import type { ClassItem, User } from "@/lib/types";
 
 export default function UsersTab() {
@@ -16,6 +17,9 @@ export default function UsersTab() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("Student");
   const [classId, setClassId] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<User | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,13 +73,22 @@ export default function UsersTab() {
     }
   }
 
-  async function handleDelete(user: User) {
-    if (!confirm(`Delete ${user.fullName} (${user.email})?`)) return;
+  async function handleDeleteConfirm() {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    setDeleteError(null);
     try {
-      await api(`/api/admin/users/${user.id}`, { method: "DELETE" });
+      const user = pendingDelete;
+      await Promise.all([
+        api(`/api/admin/users/${user.id}`, { method: "DELETE" }),
+        delay(1200),
+      ]);
       setUsers((prev) => (prev ? prev.filter((u) => u.id !== user.id) : prev));
+      setPendingDelete(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete user.");
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete user.");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -172,7 +185,7 @@ export default function UsersTab() {
                   </td>
                   <td className="px-4 py-2.5 text-zinc-400">{u.className ?? "—"}</td>
                   <td className="px-4 py-2.5 text-right">
-                    <button onClick={() => handleDelete(u)} className="btn btn-danger">
+                    <button onClick={() => setPendingDelete(u)} className="btn btn-danger">
                       Delete
                     </button>
                   </td>
@@ -182,6 +195,17 @@ export default function UsersTab() {
           </table>
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete user?"
+        message={pendingDelete ? `This will remove ${pendingDelete.fullName} (${pendingDelete.email}).` : ""}
+        confirmLabel="Delete"
+        busy={deleting}
+        error={deleteError}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

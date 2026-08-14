@@ -20,6 +20,7 @@ export default function TeacherAssignmentsTab() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [pendingUnassign, setPendingUnassign] = useState<TeacherAssignment | null>(null);
   const [unassigning, setUnassigning] = useState(false);
+  const [unassignError, setUnassignError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,6 +68,7 @@ export default function TeacherAssignmentsTab() {
   }
 
   async function handleUnassign(ta: TeacherAssignment) {
+    setUnassignError(null);
     setPendingUnassign(ta);
   }
 
@@ -91,7 +93,7 @@ export default function TeacherAssignmentsTab() {
       );
       setPendingUnassign(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to unassign teacher.");
+      setUnassignError(err instanceof Error ? err.message : "Failed to unassign teacher.");
     } finally {
       setUnassigning(false);
     }
@@ -193,6 +195,7 @@ export default function TeacherAssignmentsTab() {
         }
         confirmLabel="Unassign"
         busy={unassigning}
+        error={unassignError}
         onConfirm={handleUnassignConfirm}
         onCancel={() => setPendingUnassign(null)}
       />

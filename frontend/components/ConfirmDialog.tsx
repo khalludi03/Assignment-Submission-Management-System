@@ -8,6 +8,7 @@ interface Props {
   message: string;
   confirmLabel: string;
   busy?: boolean;
+  error?: string | null;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -18,6 +19,7 @@ export default function ConfirmDialog({
   message,
   confirmLabel,
   busy = false,
+  error = null,
   onConfirm,
   onCancel,
 }: Props) {
@@ -40,6 +42,7 @@ export default function ConfirmDialog({
       <div className="card w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-base font-semibold text-zinc-50">{title}</h3>
         <p className="mt-2 text-sm text-zinc-400">{message}</p>
+        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
         <div className="mt-6 flex justify-end gap-3">
           <button onClick={onCancel} disabled={busy} className="btn btn-secondary">
             Cancel

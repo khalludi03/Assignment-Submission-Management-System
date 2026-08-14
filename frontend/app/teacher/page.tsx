@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import NavBar from "@/components/NavBar";
 import AssignmentForm from "@/components/teacher/AssignmentForm";
 import SubmissionPanel from "@/components/teacher/SubmissionPanel";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import { api } from "@/lib/api";
+import { delay } from "@/lib/delay";
 import { formatDate } from "@/lib/format";
 import type { Assignment, TeacherAssignment } from "@/lib/types";
 
@@ -19,6 +21,9 @@ export default function TeacherDashboard() {
   const [view, setView] = useState<View>({ type: "list" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingDelete, setPendingDelete] = useState<Assignment | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,13 +59,22 @@ export default function TeacherDashboard() {
     }
   }
 
-  async function handleDelete(a: Assignment) {
-    if (!confirm(`Delete "${a.title}"? This cannot be undone.`)) return;
+  async function handleDeleteConfirm() {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    setDeleteError(null);
     try {
-      await api(`/api/assignments/${a.id}`, { method: "DELETE" });
+      const a = pendingDelete;
+      await Promise.all([
+        api(`/api/assignments/${a.id}`, { method: "DELETE" }),
+        delay(1200),
+      ]);
       setAssignments((prev) => prev.filter((x) => x.id !== a.id));
+      setPendingDelete(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete.");
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete.");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -156,7 +170,7 @@ export default function TeacherDashboard() {
                         >
                           Edit
                         </button>
-                        <button onClick={() => handleDelete(a)} className="btn btn-danger">
+                        <button onClick={() => setPendingDelete(a)} className="btn btn-danger">
                           Delete
                         </button>
                       </div>
@@ -168,6 +182,17 @@ export default function TeacherDashboard() {
           </>
         )}
       </main>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete assignment?"
+        message={pendingDelete ? `This will permanently delete "${pendingDelete.title}".` : ""}
+        confirmLabel="Delete"
+        busy={deleting}
+        error={deleteError}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

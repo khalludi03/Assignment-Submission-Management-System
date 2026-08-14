@@ -46,6 +46,7 @@ export default function AdminDashboard() {
             inputPlaceholder="Class name (e.g. Class 9)"
             emptyText="No classes yet."
             buttonLabel="Add class"
+            noun="class"
           />
         )}
         {tab === "subjects" && (
@@ -56,6 +57,7 @@ export default function AdminDashboard() {
             inputPlaceholder="Subject name (e.g. Physics)"
             emptyText="No subjects yet."
             buttonLabel="Add subject"
+            noun="subject"
           />
         )}
         {tab === "teacherAssignments" && <TeacherAssignmentsTab />}
