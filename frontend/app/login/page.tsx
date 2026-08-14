@@ -40,7 +40,9 @@ export default function LoginPage() {
           <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold text-white">
             A
           </span>
-          <h1 className="text-xl font-semibold text-zinc-50">Assignment System</h1>
+          <h1 className="text-xl font-semibold text-zinc-50">
+            Assignment &amp; Submission Management System
+          </h1>
           <p className="mt-1 text-sm text-zinc-400">Sign in to your account</p>
         </div>
 
